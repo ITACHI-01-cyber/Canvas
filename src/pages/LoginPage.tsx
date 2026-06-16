@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Eye, 
   EyeOff,
-  Sparkles,
   BookOpen,
   Layout,
   Layers
@@ -110,8 +109,8 @@ export default function LoginPage() {
           
           {/* Header block with Logo */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#ff6f3c] border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-white">
-              <Sparkles className="w-5 h-5 fill-white" />
+            <div className="w-10 h-10 border-2 border-black overflow-hidden flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-white">
+              <img src="/logo.jpg" alt="Logo" className="w-full h-full object-cover" />
             </div>
             <div>
               <h1 className="font-display font-black text-xs tracking-wider uppercase text-black">Litverse Canvas</h1>

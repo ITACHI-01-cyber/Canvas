@@ -31,7 +31,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed, mobil
       )}
     >
       <div className="p-4 flex items-center justify-between h-14 bg-white/5 border-b-[3px] border-black dark:border-white overflow-hidden">
-        {(!collapsed || mobileOpen) && <span className="font-display font-black text-xs tracking-wider uppercase px-2 text-black dark:text-white">Workspace</span>}
+        {(!collapsed || mobileOpen) && (
+          <div className="flex items-center gap-2 px-1">
+            <img src="/logo.jpg" alt="Logo" className="w-6 h-6 border-2 border-black dark:border-white" />
+            <span className="font-display font-black text-xs tracking-wider uppercase text-black dark:text-white">Workspace</span>
+          </div>
+        )}
         
         {/* Desktop Collapse Toggle */}
         <button
