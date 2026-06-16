@@ -11,15 +11,66 @@ import {
   MousePointer2,
   Check,
   Layout,
-  ChevronLeft
+  ChevronLeft,
+  User,
+  Upload,
+  Lock
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 export const SettingsPage: React.FC = () => {
-  const { settings, updateSettings, resetSettings } = useStore();
+  const { settings, updateSettings, resetSettings, user, updateUser, fetchUserProfile, saveUserProfile } = useStore();
+
+  const [lastSavedProfile, setLastSavedProfile] = React.useState<{ name?: string; avatar?: string } | null>(null);
+  const [saveSuccess, setSaveSuccess] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
+
+  React.useEffect(() => {
+    const initProfile = async () => {
+      if (user?.email && user.email !== 'guest_explorer@example.com') {
+        try {
+          await fetchUserProfile(user.email);
+          const freshUser = useStore.getState().user;
+          if (freshUser) {
+            setLastSavedProfile({ name: freshUser.name, avatar: freshUser.avatar });
+          }
+        } catch (e) {
+          setLastSavedProfile({ name: user.name, avatar: user.avatar });
+        }
+      }
+    };
+    initProfile();
+  }, []);
+
+  React.useEffect(() => {
+    if (user && !lastSavedProfile) {
+      setLastSavedProfile({ name: user.name, avatar: user.avatar });
+    }
+  }, [user, lastSavedProfile]);
+
+  const hasChanges = user && lastSavedProfile && (
+    user.name !== lastSavedProfile.name || 
+    user.avatar !== lastSavedProfile.avatar
+  );
+
+  const handleSaveProfile = async () => {
+    if (!user || user.email === 'guest_explorer@example.com') return;
+    setSaving(true);
+    setSaveSuccess(false);
+    try {
+      await saveUserProfile();
+      setLastSavedProfile({ name: user.name, avatar: user.avatar });
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (error) {
+      alert('Failed to save profile changes. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const themes = [
-    { id: 'light', name: 'Alabaster', color: 'bg-bg-warm', border: 'border-gray-200' },
+    { id: 'light', name: 'Litverse Cream', color: 'bg-bg-warm', border: 'border-gray-200' },
     { id: 'dark', name: 'Obsidian', color: 'bg-dark-charcoal', border: 'border-white/10' },
     { id: 'amber', name: 'Golden Hour', color: 'bg-amber-50', border: 'border-amber-200' },
     { id: 'emerald', name: 'Deep Forest', color: 'bg-emerald-50', border: 'border-emerald-200' },
@@ -55,6 +106,38 @@ export const SettingsPage: React.FC = () => {
     }
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Image size should be less than 2MB");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const size = 128;
+        canvas.width = size;
+        canvas.height = size;
+        
+        const minDim = Math.min(img.width, img.height);
+        const sx = (img.width - minDim) / 2;
+        const sy = (img.height - minDim) / 2;
+        ctx?.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+        
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+        updateUser({ avatar: compressedBase64 });
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <AppShell>
       <div className="flex-1 overflow-y-auto p-8">
@@ -72,6 +155,117 @@ export const SettingsPage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <section className="md:col-span-2 space-y-6">
+              {/* Profile Card */}
+              <div className="bg-white/80 dark:bg-white/5 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-black/5">
+                <div className="flex items-center gap-2 mb-6">
+                  <User size={20} className="text-brand-yellow" />
+                  <h2 className="font-bold uppercase tracking-wider text-sm">Profile & User Info</h2>
+                </div>
+
+                {user && (
+                  <div className="flex flex-col sm:flex-row gap-6 items-center">
+                    {/* Avatar Upload Display */}
+                    <div className="relative group shrink-0">
+                      <div className="w-24 h-24 rounded-none border-4 border-black overflow-hidden bg-[#ff6f3c] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center relative">
+                        {user.avatar ? (
+                          <img src={user.avatar} alt={user.name || 'User'} className="w-full h-full object-cover" />
+                        ) : (
+                          <svg className="w-full h-full text-white p-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                          </svg>
+                        )}
+                        
+                        {user.email !== 'guest_explorer@example.com' && (
+                          <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white text-[9px] font-bold uppercase tracking-wider cursor-pointer transition-all">
+                            <Upload size={16} className="mb-1" />
+                            Change
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              onChange={handleImageUpload} 
+                              className="hidden" 
+                            />
+                          </label>
+                        )}
+                      </div>
+                      
+                      {user.email === 'guest_explorer@example.com' && (
+                        <div className="absolute -bottom-2 -right-2 bg-neutral-800 border-2 border-white text-white p-1 rounded-full shadow-md" title="Guest Mode (Read-Only)">
+                          <Lock size={12} />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Inputs */}
+                    <div className="flex-1 w-full space-y-4">
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-dark-charcoal/60 mb-2">Email Address</label>
+                        <input
+                          type="text"
+                          value={user.email}
+                          disabled
+                          className="w-full px-4 py-3 rounded-xl border border-black/5 bg-black/5 text-dark-charcoal/60 font-mono text-xs font-semibold cursor-not-allowed outline-none"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-dark-charcoal/60 mb-2">Display Name</label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={user.name || ''}
+                            onChange={(e) => updateUser({ name: e.target.value })}
+                            disabled={user.email === 'guest_explorer@example.com'}
+                            className={cn(
+                              "w-full px-4 py-3 rounded-xl border font-semibold outline-none focus:ring-2 focus:ring-brand-yellow/50 transition-all text-sm",
+                              user.email === 'guest_explorer@example.com'
+                                ? "bg-black/5 text-dark-charcoal/60 border-black/5 cursor-not-allowed"
+                                : "bg-white border-black/5 text-dark-charcoal focus:border-brand-yellow/30"
+                            )}
+                            placeholder="Enter Display Name"
+                          />
+                          {user.email === 'guest_explorer@example.com' && (
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-bold uppercase text-neutral-500 bg-neutral-100 border px-2 py-0.5 rounded">
+                              Read-Only
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {user.email !== 'guest_explorer@example.com' && (
+                      <div className="w-full mt-6 pt-6 border-t border-black/5 flex justify-end">
+                        <button
+                          onClick={handleSaveProfile}
+                          disabled={!hasChanges || saving}
+                          className={cn(
+                            "px-6 py-3 font-mono font-black text-xs uppercase tracking-wider transition-all border-2 border-black rounded-none flex items-center gap-2 cursor-pointer shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0 active:translate-y-0 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:translate-x-0 disabled:hover:translate-y-0",
+                            saveSuccess 
+                              ? "bg-green-500 text-white" 
+                              : "bg-brand-yellow text-black"
+                          )}
+                        >
+                          {saving ? (
+                            <>
+                              <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                              Saving...
+                            </>
+                          ) : saveSuccess ? (
+                            <>
+                              <Check size={14} className="stroke-[3]" />
+                              Profile Saved ✓
+                            </>
+                          ) : (
+                            "Save Profile Changes"
+                          )}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
               {/* Appearance Section */}
               <div className="bg-white/80 dark:bg-white/5 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-black/5">
                 <div className="flex items-center gap-2 mb-6">

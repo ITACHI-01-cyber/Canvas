@@ -41,15 +41,15 @@ export default function DashboardPage() {
 
   return (
     <AppShell>
-      <div className="p-8 max-w-7xl mx-auto">
-        <header className="flex items-center justify-between mb-12">
+      <div className="p-4 sm:p-8 max-w-7xl mx-auto">
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-12">
           <div>
-            <h2 className="text-4xl font-display font-bold mb-2">My Whiteboards</h2>
-            <p className="opacity-70">Overview of all your brainstormed projects</p>
+            <h2 className="text-3xl sm:text-4xl font-display font-bold mb-2">My Whiteboards</h2>
+            <p className="opacity-70 text-xs sm:text-base">Overview of all your brainstormed projects</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="px-6 py-3 bg-brand-yellow text-dark-charcoal font-bold rounded-xl flex items-center gap-2 shadow-lg hover:shadow-xl transition-all active:scale-95"
+            className="px-6 py-3 bg-brand-yellow text-dark-charcoal font-bold rounded-xl flex items-center gap-2 shadow-lg hover:shadow-xl transition-all active:scale-95 w-full sm:w-auto justify-center"
           >
             <Plus size={20} />
             New Project
@@ -157,92 +157,101 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white text-dark-charcoal w-full max-w-lg p-8 rounded-3xl shadow-2xl border border-black/10"
+      <AnimatePresence>
+        {showModal && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md"
           >
-            <h2 className="text-2xl font-display font-bold mb-6">New Whiteboard</h2>
-            <form onSubmit={handleCreate} className="space-y-6">
-              <div className="flex flex-col gap-6">
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-dark-charcoal/60 mb-2">Project Name</label>
-                  <input
-                    type="text"
-                    value={newProject.name}
-                    onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-black/5 bg-black/5 text-dark-charcoal focus:outline-none focus:ring-2 focus:ring-brand-yellow/50 transition-all font-medium"
-                    placeholder="e.g. E-Commerce Platform"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-dark-charcoal/60 mb-2">Description</label>
-                  <textarea
-                    value={newProject.description}
-                    onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-black/5 bg-black/5 text-dark-charcoal focus:outline-none focus:ring-2 focus:ring-brand-yellow/50 transition-all font-medium resize-none"
-                    rows={3}
-                    placeholder="Brief summary of the architecture goals"
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              className="bg-white text-dark-charcoal w-full max-w-lg p-6 sm:p-8 rounded-3xl shadow-2xl border border-black/10 max-h-[90vh] overflow-y-auto"
+            >
+              <h2 className="text-2xl font-display font-bold mb-6">New Whiteboard</h2>
+              <form onSubmit={handleCreate} className="space-y-6">
+                <div className="flex flex-col gap-6">
                   <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-dark-charcoal/60 mb-2">Project Type</label>
-                    <select
-                      value={newProject.type}
-                      onChange={(e) => setNewProject({ ...newProject, type: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-black/5 bg-black/5 text-dark-charcoal focus:outline-none focus:ring-2 focus:ring-brand-yellow/50 transition-all font-medium appearance-none"
-                    >
-                      <option>Web App</option>
-                      <option>Mobile App</option>
-                      <option>API</option>
-                      <option>ML Service</option>
-                      <option>Infrastructure</option>
-                      <option>Other</option>
-                    </select>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-dark-charcoal/60 mb-2">Project Name</label>
+                    <input
+                      type="text"
+                      value={newProject.name}
+                      onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl border border-black/5 bg-black/5 text-dark-charcoal focus:outline-none focus:ring-2 focus:ring-brand-yellow/50 transition-all font-medium"
+                      placeholder="e.g. E-Commerce Platform"
+                      required
+                    />
                   </div>
-                  
-                  {newProject.type === 'Other' && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                    >
-                      <label className="block text-xs font-bold uppercase tracking-wider text-dark-charcoal/60 mb-2">Custom Type Description</label>
-                      <input
-                        type="text"
-                        value={newProject.otherTypeDescription}
-                        onChange={(e) => setNewProject({ ...newProject, otherTypeDescription: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl border border-black/5 bg-black/5 text-dark-charcoal focus:outline-none focus:ring-2 focus:ring-brand-yellow/50 transition-all font-medium"
-                        placeholder="e.g. Game Engine Design"
-                        required={newProject.type === 'Other'}
-                      />
-                    </motion.div>
-                  )}
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-dark-charcoal/60 mb-2">Description</label>
+                    <textarea
+                      value={newProject.description}
+                      onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl border border-black/5 bg-black/5 text-dark-charcoal focus:outline-none focus:ring-2 focus:ring-brand-yellow/50 transition-all font-medium resize-none"
+                      rows={3}
+                      placeholder="Brief summary of the architecture goals"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[10px] font-bold uppercase tracking-widest text-dark-charcoal/60 mb-2">Project Type</label>
+                      <select
+                        value={newProject.type}
+                        onChange={(e) => setNewProject({ ...newProject, type: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl border border-black/5 bg-black/5 text-dark-charcoal focus:outline-none focus:ring-2 focus:ring-brand-yellow/50 transition-all font-medium appearance-none"
+                      >
+                        <option>Web App</option>
+                        <option>Mobile App</option>
+                        <option>API</option>
+                        <option>ML Service</option>
+                        <option>Infrastructure</option>
+                        <option>Other</option>
+                      </select>
+                    </div>
+                    
+                    {newProject.type === 'Other' && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                      >
+                        <label className="block text-xs font-bold uppercase tracking-wider text-dark-charcoal/60 mb-2">Custom Type Description</label>
+                        <input
+                          type="text"
+                          value={newProject.otherTypeDescription}
+                          onChange={(e) => setNewProject({ ...newProject, otherTypeDescription: e.target.value })}
+                          className="w-full px-4 py-3 rounded-xl border border-black/5 bg-black/5 text-dark-charcoal focus:outline-none focus:ring-2 focus:ring-brand-yellow/50 transition-all font-medium"
+                          placeholder="e.g. Game Engine Design"
+                          required={newProject.type === 'Other'}
+                        />
+                      </motion.div>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex gap-4 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 py-4 text-dark-charcoal/60 font-bold hover:bg-black/5 rounded-xl transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-4 bg-brand-yellow text-dark-charcoal font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all active:scale-95"
-                >
-                  Create Board
-                </button>
-              </div>
-            </form>
+                <div className="flex gap-4 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="flex-1 py-4 text-dark-charcoal/60 font-bold hover:bg-black/5 rounded-xl transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-4 bg-brand-yellow text-dark-charcoal font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all active:scale-95"
+                  >
+                    Create Board
+                  </button>
+                </div>
+              </form>
+            </motion.div>
           </motion.div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </AppShell>
   );
 }

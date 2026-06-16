@@ -1,40 +1,60 @@
 import React from 'react';
-import { Search } from 'lucide-react';
+import { Search, Menu } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import { useStore } from '../../store/useStore';
 import { cn } from '../../lib/utils';
 
-export const TopBar: React.FC = () => {
+interface TopBarProps {
+  onMenuToggle?: () => void;
+}
+
+export const TopBar: React.FC<TopBarProps> = ({ onMenuToggle }) => {
   const activeProject = useStore((state) => state.activeProject);
-  const exportProject = useStore((state) => state.exportProject);
   const theme = useStore((state) => state.settings.theme);
+  const user = useStore((state) => state.user);
+  const location = useLocation();
 
   const isDark = ['dark', 'cobalt', 'slate'].includes(theme);
+  const isProjectPage = activeProject && location.pathname.startsWith('/projects/');
 
   return (
     <header className={cn(
-      "h-14 border-b flex items-center justify-between px-6 z-10 shadow-sm shrink-0 transition-colors duration-500",
-      isDark ? "bg-black/40 border-white/10 text-white" : "bg-white/90 border-gray-border text-dark-charcoal"
+      "h-14 border-b-[3px] flex items-center justify-between px-6 z-10 shrink-0 transition-colors duration-300",
+      isDark ? "bg-[#121212] border-white text-white" : "bg-white border-black text-black"
     )}>
-      <div className="flex items-center gap-4">
-        {activeProject ? (
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-              <span className="text-white/50 text-sm font-medium">Whiteboard /</span>
-              <h1 className="font-display font-medium text-base tracking-tight">{activeProject.name}</h1>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={onMenuToggle}
+          className={cn(
+            "p-1.5 border-2 md:hidden rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all cursor-pointer",
+            isDark ? "border-white bg-[#181818] text-white shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]" : "border-black bg-white text-black"
+          )}
+        >
+          <Menu size={16} />
+        </button>
+
+        {isProjectPage ? (
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider opacity-60 hidden sm:inline">Whiteboard /</span>
+              <h1 className="font-display font-black text-sm tracking-tight truncate max-w-[120px] xs:max-w-[160px] sm:max-w-none">{activeProject.name}</h1>
             </div>
             {activeProject.createdAt && (
-              <span className="text-[10px] text-white/30 font-mono tracking-tighter">
-                Session Active • Started: {new Date(activeProject.createdAt).toLocaleString()}
+              <span className="text-[9px] opacity-65 font-mono hidden sm:block">
+                SESSION ID: {activeProject._id} • START: {new Date(activeProject.createdAt).toLocaleTimeString()}
               </span>
             )}
           </div>
         ) : (
           <div className="relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={16} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 opacity-70" size={14} />
             <input
               type="text"
-              placeholder="Search whiteboards..."
-              className="pl-9 pr-4 py-1.5 bg-white/10 border border-white/5 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-brand-yellow/50 transition-all w-64 lg:w-96"
+              placeholder="SEARCH WORKSPACES..."
+              className={cn(
+                "pl-9 pr-4 py-1 border-2 text-xs font-mono placeholder-black/40 focus:outline-none transition-all w-36 xs:w-48 sm:w-64 lg:w-96 rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+                isDark ? "bg-[#181818] border-white text-white placeholder-white/40 focus:bg-white/5" : "bg-white border-black text-black"
+              )}
             />
           </div>
         )}
@@ -42,34 +62,28 @@ export const TopBar: React.FC = () => {
 
       <div className="flex items-center gap-6">
         <div className={cn(
-          "flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider transition-opacity duration-300",
-          isDark ? "opacity-60" : "opacity-40"
+          "flex items-center gap-2 text-[9px] font-mono font-bold uppercase tracking-widest px-3 py-1 border-2 transition-all",
+          isDark ? "bg-neutral-900 border-white text-white shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]" : "bg-white border-black text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
         )}>
-          <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow shadow-[0_0_8px_rgba(232,200,50,0.5)] animate-pulse"></span>
-          Pure Frontend Mode
+          <span className="w-2 h-2 rounded-none bg-green-500 border border-current animate-pulse"></span>
+          DB ACTIVE
         </div>
-        
-        <div className={cn("flex items-center gap-3 border-l pl-6", isDark ? "border-white/10" : "border-gray-border")}>
-          <button 
-            onClick={() => exportProject()}
-            className={cn(
-              "px-3 py-1 bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/20 rounded-md text-[10px] font-bold hover:bg-brand-yellow/20 transition-all uppercase tracking-wider"
+
+        {user && (
+          <div className={cn(
+            "w-8 h-8 rounded-none border-2 overflow-hidden shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center bg-[#ff6f3c] transition-all shrink-0",
+            isDark ? "border-white shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] bg-neutral-800" : "border-black"
+          )}>
+            {user.avatar ? (
+              <img src={user.avatar} alt={user.name || 'User'} className="w-full h-full object-cover" />
+            ) : (
+              <svg className="w-full h-full text-white p-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
             )}
-          >
-            Export Backup
-          </button>
-          <button 
-            onClick={() => {
-              if (confirm('Export and Close Session? This will download your work and clear the local session.')) {
-                exportProject();
-                useStore.setState({ activeProject: null });
-              }
-            }}
-            className="px-4 py-1.5 bg-brand-yellow text-dark-charcoal rounded-md text-xs font-bold hover:brightness-110 active:scale-95 transition-all shadow-md"
-          >
-            Save & Exit
-          </button>
-        </div>
+          </div>
+        )}
       </div>
     </header>
   );

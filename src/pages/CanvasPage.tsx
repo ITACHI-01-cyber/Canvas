@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { ReactFlow, Background, Controls, MiniMap, ConnectionMode, Panel } from '@xyflow/react';
+import { ReactFlow, Background, Controls, MiniMap, ConnectionMode, Panel, ConnectionLineType } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { AppShell } from '../components/layout/AppShell';
 import { useStore } from '../store/useStore';
@@ -56,6 +56,8 @@ export default function CanvasPage() {
             onPaneClick={onPaneClick}
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
+            defaultEdgeOptions={{ type: 'labeledEdge' }}
+            connectionLineType={ConnectionLineType.SmoothStep}
             connectionMode={ConnectionMode.Loose}
             snapToGrid={settings.snapToGrid}
             snapGrid={[20, 20]}

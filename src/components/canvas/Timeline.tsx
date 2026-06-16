@@ -27,7 +27,7 @@ export const Timeline: React.FC = () => {
           id: n.id,
           label: `${n.data.label} (Start)`,
           date: new Date(n.data.startDate),
-          color: n.data.color || '#E8C832',
+          color: n.data.color || '#ff6f3c',
           type: 'start' as const,
           field: 'startDate'
         });
@@ -37,7 +37,7 @@ export const Timeline: React.FC = () => {
           id: n.id,
           label: n.data.label,
           date: new Date(n.data.deadline),
-          color: n.data.color || '#E8C832',
+          color: n.data.color || '#ff6f3c',
           type: 'deadline' as const,
           field: 'deadline'
         });
@@ -67,45 +67,45 @@ export const Timeline: React.FC = () => {
   const totalEdges = activeProject.edges.length;
 
   return (
-    <footer className="h-32 bg-card-warm border-t border-gray-border shrink-0 flex flex-col z-20 overflow-hidden">
-      <div className="flex-1 flex px-10 relative mt-4">
+    <footer className="h-8 md:h-32 bg-white dark:bg-[#151515] border-t-[3px] border-black dark:border-white shrink-0 flex flex-col z-20 overflow-hidden transition-all duration-300">
+      <div className="hidden md:flex flex-1 px-10 relative mt-4">
         {/* Current day indicator */}
         <div 
-          className="absolute top-0 w-px h-full bg-brand-yellow z-10 opacity-30"
+          className="absolute top-0 w-[2px] h-full bg-brand-yellow dark:bg-white z-10"
           style={{ left: getPosition(new Date()) }}
         ></div>
         
         {/* Month Labels */}
-        <div className="absolute top-0 w-full flex text-[10px] font-bold text-gray-text uppercase tracking-widest px-10">
+        <div className="absolute top-0 w-full flex text-[9px] font-mono font-black text-black dark:text-white uppercase tracking-widest px-10">
           {months.map((month) => (
             <div key={month} className="w-1/4">{month}</div>
           ))}
         </div>
-
+ 
         {/* Timeline Track */}
-        <div className="w-full mt-12 border-t border-gray-200 flex relative">
+        <div className="w-full mt-12 border-t-[3px] border-black dark:border-white flex relative">
           {events.map((event: any, idx) => (
             <motion.div 
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: idx * 0.05 }}
               key={`${event.id}-${event.label}-${idx}`} 
-              className="absolute -top-1.5 flex flex-col items-center group/event" 
+              className="absolute -top-2 flex flex-col items-center group/event" 
               style={{ left: event.position, zIndex: idx }}
             >
               <div 
-                className="w-3 h-3 rounded-full border-2 border-white shadow-sm transition-transform group-hover/event:scale-125"
+                className="w-3.5 h-3.5 rounded-none border-2 border-black dark:border-white shadow-[1.5px_1.5px_0px_0px_#000] dark:shadow-[1.5px_1.5px_0px_0px_#fff] transition-transform group-hover/event:scale-110 cursor-pointer"
                 style={{ backgroundColor: event.color }}
               />
               <div className={cn(
-                "mt-2 bg-white px-2 py-1 border rounded text-[9px] font-bold shadow-sm whitespace-nowrap max-w-[120px] truncate flex flex-col gap-1 transition-all group-hover/event:z-50",
-                event.color === '#E8C832' ? "border-brand-yellow" : "border-black/5"
+                "mt-2 bg-white dark:bg-neutral-900 px-2 py-1.5 border-2 border-black dark:border-white rounded-none text-[8px] font-mono font-black shadow-[3px_3px_0px_0px_#000] dark:shadow-[3px_3px_0px_0px_#fff] whitespace-nowrap max-w-[130px] truncate flex flex-col gap-1 transition-all group-hover/event:z-50 uppercase text-black dark:text-white",
+                event.color === '#ff6f3c' ? "border-brand-yellow" : "border-black dark:border-white"
               )}>
                 <span>{event.label}</span>
                 {event.id !== 'start' && (
                   <input 
                     type="date"
-                    className="text-[8px] bg-bg-warm border-none p-0 opacity-0 group-hover/event:opacity-100 transition-opacity focus:opacity-100 cursor-pointer"
+                    className="text-[8px] bg-slate-50 dark:bg-neutral-800 text-black dark:text-white border border-black p-0.5 rounded-none opacity-0 group-hover/event:opacity-100 transition-opacity focus:opacity-100 cursor-pointer outline-none font-mono"
                     value={format(event.date, 'yyyy-MM-dd')}
                     onChange={(e) => {
                       if (event.id) {
@@ -119,18 +119,18 @@ export const Timeline: React.FC = () => {
           ))}
         </div>
       </div>
-
-      <div className="h-8 bg-[#f0eee9] flex items-center px-10 text-[10px] font-medium text-gray-500">
-        <div className="flex gap-4">
+ 
+      <div className="h-8 bg-white dark:bg-neutral-900 border-t-2 border-black dark:border-white flex items-center px-4 md:px-10 text-[8px] font-mono font-black text-black dark:text-white uppercase tracking-widest justify-between w-full overflow-hidden select-none">
+        <div className="flex gap-4 shrink-0">
           <span className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow"></span> Today
+            <span className="w-2 h-2 rounded-none border border-black bg-brand-yellow"></span> Today
           </span>
-          <span className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span> Event
+          <span className="hidden sm:flex items-center gap-1">
+            <span className="w-2 h-2 rounded-none border border-black bg-gray-400"></span> Event
           </span>
         </div>
-        <span className="ml-auto opacity-70 italic tracking-tight">
-          Total Nodes: {totalNodes} • Connectors: {totalEdges} • Last modified {activeProject.updatedAt ? format(new Date(activeProject.updatedAt), 'HH:mm') : 'just now'}
+        <span className="opacity-80 tracking-widest font-mono truncate ml-4 text-right">
+          NODES: {totalNodes} • CONNS: {totalEdges} • UP: {activeProject.updatedAt ? format(new Date(activeProject.updatedAt), 'HH:mm') : 'JUST NOW'}
         </span>
       </div>
     </footer>

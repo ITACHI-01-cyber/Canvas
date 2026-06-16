@@ -1,23 +1,25 @@
 @import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=cabinet-grotesk@400,500,700,800&display=swap');
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: "Satoshi", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Cabinet Grotesk", ui-sans-serif, system-ui, sans-serif;
 
-  --color-brand-yellow: #E8C832;
-  --color-bg-warm: #f7f6f2;
-  --color-card-warm: #f9f8f5;
-  --color-dark-charcoal: #2d2c2a;
-  --color-gray-border: #e8e6e1;
-  --color-gray-text: #9a9895;
-  --color-soft-border: oklch(0.2 0.01 80 / 0.08);
+  --color-brand-yellow: #ff6f3c;
+  --color-bg-warm: #ebdcb9; /* Warm Brutalist Beige */
+  --color-card-warm: #ffffff;
+  --color-dark-charcoal: #000000; /* Brutalist stark black */
+  --color-gray-border: #000000; /* Stark black borders */
+  --color-gray-text: #2d2c2a;
+  --color-soft-border: #000000;
 
-  --radius-xl: 12px;
+  --radius-xl: 0px; /* Brutalist sharp corners */
 
-  --shadow-warm: 0 4px 12px oklch(0.2 0.01 80 / 0.08);
-  --shadow-lift: 0 12px 32px oklch(0.2 0.01 80 / 0.15);
-  --shadow-node: 0 4px 12px rgba(40,37,29,0.08);
+  --shadow-warm: 4px 4px 0px 0px #000000;
+  --shadow-lift: 8px 8px 0px 0px #000000;
+  --shadow-node: 6px 6px 0px 0px #000000;
 }
 
 @layer base {
@@ -26,39 +28,77 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display font-medium tracking-tight;
+    @apply font-display font-black tracking-tight uppercase;
   }
 }
 
-/* React Flow Overrides */
+/* React Flow Overrides - Brutalist Edition */
 .react-flow__node-stackNode {
   @apply p-0 border-none bg-transparent shadow-none;
 }
 
 .react-flow__handle {
-  @apply w-2 h-2 bg-brand-yellow border-2 border-white;
+  @apply w-2.5 h-2.5 bg-brand-yellow border-2 border-black rounded-none shadow-none transition-transform hover:scale-125;
 }
 
 .react-flow__connection-path {
-  @apply stroke-brand-yellow stroke-[2px];
+  @apply stroke-black stroke-[3px];
 }
 
 .react-flow__edge-path {
-  @apply stroke-gray-text stroke-[2px] transition-colors duration-300;
+  @apply stroke-black stroke-[2.5px] transition-colors duration-300;
 }
 
 .react-flow__edge.selected .react-flow__edge-path {
-  @apply stroke-brand-yellow;
+  @apply stroke-brand-yellow stroke-[3.5px];
 }
 
 .react-flow__controls {
-  @apply bg-white border-gray-border shadow-warm rounded-lg overflow-hidden;
+  @apply bg-white border-[3px] border-black shadow-[4px_4px_0px_0px_#000] rounded-none overflow-hidden !m-6;
 }
 
 .react-flow__controls-button {
-  @apply border-b border-gray-border last:border-none fill-dark-charcoal;
+  @apply border-b-2 border-black last:border-none fill-black hover:bg-brand-yellow/20 transition-colors w-7 h-7 flex items-center justify-center;
 }
 
 .react-flow__panel {
-  @apply m-4;
+  @apply m-6;
+}
+
+.react-flow__minimap {
+  @apply border-[3px] border-black shadow-[4px_4px_0px_0px_#000] rounded-none bg-white/95 !m-6;
+}
+
+@keyframes edge-flow {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.edge-flow-path {
+  stroke-linecap: square;
+}
+
+/* Neo-Brutalist UI Utility Classes */
+.brutalist-card {
+  @apply bg-white border-[3px] border-black shadow-[6px_6px_0px_0px_#000] rounded-none transition-all;
+}
+
+.brutalist-card-hover {
+  @apply hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[10px_10px_0px_0px_#000] active:translate-x-0 active:translate-y-0 active:shadow-[6px_6px_0px_0px_#000];
+}
+
+.brutalist-btn {
+  @apply bg-white border-[3px] border-black text-black font-black uppercase text-xs tracking-wider px-4 py-2 shadow-[4px_4px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_#000] active:translate-x-0 active:translate-y-0 active:shadow-[4px_4px_0px_0px_#000] transition-all cursor-pointer select-none text-center;
+}
+
+.brutalist-btn-yellow {
+  @apply bg-brand-yellow text-black font-black uppercase text-xs tracking-wider px-4 py-2 border-[3px] border-black shadow-[4px_4px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_#000] active:translate-x-0 active:translate-y-0 active:shadow-[4px_4px_0px_0px_#000] transition-all cursor-pointer select-none text-center hover:bg-brand-yellow/90;
+}
+
+.brutalist-input {
+  @apply bg-white border-[3px] border-black px-3 py-2 text-sm text-black placeholder-black/40 font-bold focus:outline-none focus:bg-brand-yellow/10 transition-colors rounded-none shadow-[2px_2px_0px_0px_#000] focus:shadow-[4px_4px_0px_0px_#000];
 }

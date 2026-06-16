@@ -2,11 +2,38 @@ import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import dotenv from 'dotenv';
+import http from 'http';
 
 dotenv.config();
 
 const app = express();
 const PORT = 3000;
+
+// Proxy /api requests to Spring Boot backend
+app.use('/api', (req, res, next) => {
+  if (req.url === '/health' || req.path === '/health') {
+    return next();
+  }
+  const connector = http.request(
+    {
+      host: 'localhost',
+      port: 8080,
+      path: '/api' + req.url,
+      method: req.method,
+      headers: req.headers,
+    },
+    (resp) => {
+      res.writeHead(resp.statusCode || 200, resp.headers);
+      resp.pipe(res);
+    }
+  );
+  
+  connector.on('error', () => {
+    res.status(502).json({ error: 'Backend Java server is not running or unreachable on port 8080' });
+  });
+
+  req.pipe(connector);
+});
 
 app.use(express.json());
 
